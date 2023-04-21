@@ -5,7 +5,7 @@
 * This utility makes Kong Konnect API calls to
   * See if the runtime group that you provided as input exists or not. If it does not, then creates one
   * Generates self signed certificate and pins it down with the specific runtime group
-  * Makes AWS API calls to store the certificate and key in AWS Secrets Manager that you can futher mount to your kubernetes pods or ECS environment variable
+ * Makes AWS API calls to store the certificate and key in AWS Secrets Manager that you can futher mount to your kubernetes pods or ECS environment variable
 
 
 ## Usage Instructions
