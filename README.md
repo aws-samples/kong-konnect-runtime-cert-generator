@@ -13,3 +13,16 @@
 * Authenticate against AWS by either setting environment variables or STS or any of your [preferred mechanism](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
 * Run `./kong-konnect-runtime-cert-generator --help` for usage
 
+
+## Release
+
+* Set following
+
+export GITHUB_TOKEN="YOUR_GH_TOKEN"
+
+* Create a tag and push it to GitHub
+* Run `goreleaser release --clean`
+
+# TODO
+
+Feature requests are as mentioned in the Issues section of this repository. Appreciate pull requests.

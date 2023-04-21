@@ -61,6 +61,14 @@ type RuntimeConfiguration struct {
 	} `json:"data"`
 }
 
+type Output struct {
+	ControlPlaneEndpoint string `json:"control_plane_endpoint"`
+	TelemetryEndpoint    string `json:"telemetry_endpoint"`
+	Name                 string `json:"name"`
+	AWSCertManagerCRT    string `json:"cert_manager_crt"`
+	AWSCertManagerKey    string `json:"cert_manager_key"`
+}
+
 // Create a struct containing certificate
 type Cert struct {
 	Certificate string `json:"cert"`
@@ -244,10 +252,20 @@ func GenerateKeys() {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("Certificate Upload status:", resp.Status)
-	CreateSecret(runtime_configuration.Data[0].ID+"-cert", string(certPEM))
-	CreateSecret(runtime_configuration.Data[0].ID+"-key", string(privateKeyPEM))
+	//TODO: Log Levels -  fmt.Println("Certificate Upload status:", resp.Status)
 
+	var output Output
+	output.ControlPlaneEndpoint = runtime_configuration.Data[0].Config.ControlPlaneEndpoint
+	output.TelemetryEndpoint = runtime_configuration.Data[0].Config.TelemetryEndpoint
+	output.Name = runtime_configuration.Data[0].Name
+	output.AWSCertManagerCRT = runtime_configuration.Data[0].ID + "-cert"
+	output.AWSCertManagerKey = runtime_configuration.Data[0].ID + "-key"
+
+	CreateSecret(output.AWSCertManagerCRT, string(certPEM))
+	CreateSecret(output.AWSCertManagerKey, string(privateKeyPEM))
+
+	outputStr := fmt.Sprintf("%+v", output)
+	fmt.Println(outputStr)
 }
 
 // Function to create secrets in AWS Secrets Manager
@@ -272,7 +290,7 @@ func CreateSecret(name string, secret string) {
 	if err != nil {
 		if strings.Contains(err.Error(), "ResourceNotFoundException") {
 			// Secret doesn't exist, proceed to create new secret
-			fmt.Println("Secret not found, proceeding to create new secret...")
+			//TODO: Log Levels -  fmt.Println("Secret not found, proceeding to create new secret...")
 
 		} else {
 			// Handle other errors as needed
@@ -280,7 +298,7 @@ func CreateSecret(name string, secret string) {
 		}
 	} else {
 		// Secret exists, force delete the secret
-		fmt.Printf("Secret %s found, forcing deletion...\n", secretName)
+		//TODO: Log Levels -  fmt.Printf("Secret %s found, forcing deletion...\n", secretName)
 		isTrue := true
 		_, err = svc.DeleteSecret(context.Background(), &secretsmanager.DeleteSecretInput{
 			SecretId:                   &secretName,
@@ -298,27 +316,27 @@ func CreateSecret(name string, secret string) {
 			if err != nil {
 				if strings.Contains(err.Error(), "ResourceNotFoundException") {
 					// Deletion is complete, proceed to create new secret
-					fmt.Println("Deletion is complete, proceeding to create new secret...")
+					//TODO: Log Levels -  fmt.Println("Deletion is complete, proceeding to create new secret...")
 					break
 				} else {
 					// Handle other errors as needed
 					panic("failed to describe secret, " + err.Error())
 				}
 			} else {
-				fmt.Println("Secret still exists, waiting for deletion to complete...")
+				//TODO : Debug Loggingfmt.Println("Secret still exists, waiting for deletion to complete...")
 			}
 		}
 
 	}
 
 	// Create the new secret
-	fmt.Println("Creating new secret...")
-	createOutput, err := svc.CreateSecret(context.Background(), &secretsmanager.CreateSecretInput{
+	//TODO : Debug Loggingfmt.Printf("Creating new secret with name %s \n", secretName)
+	_, err = svc.CreateSecret(context.Background(), &secretsmanager.CreateSecretInput{
 		Name:         &secretName,
 		SecretString: &(secret),
 	})
 	if err != nil {
 		panic("failed to create secret, " + err.Error())
 	}
-	fmt.Printf("Secret %s created with %s\n", *createOutput.Name, *createOutput.ARN)
+	//TODO : Debug Logging fmt.Printf("Secret %s created with %s\n", *createOutput.Name, *createOutput.ARN)
 }
