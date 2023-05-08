@@ -108,25 +108,12 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	// bodyBytes, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	fmt.Println("Error reading response body:", err)
-	// 	return
-	// }
-
 	if resp.StatusCode == 409 {
 		fmt.Println("Runtime group already exists")
 	}
 	if resp.StatusCode == 201 {
 		fmt.Println("Runtime group created")
 	}
-
-	// var response interface{}
-	// err = json.Unmarshal(bodyBytes, &response)
-	// if err != nil {
-	// 	fmt.Println("Error unmarshaling JSON:", err)
-	// 	return
-	// }
 
 	GenerateKeys()
 
@@ -135,17 +122,15 @@ func main() {
 // function to call kong api and get the runtime group id
 func GetRuntimeGroupConfiguration() RuntimeConfiguration {
 
-	get_runtime_groups := kong_api_endpoint + "/" + api_version + "/runtime-groups"
-	filterData := url.Values{}
-	filterData.Set("name", runtime_group_name)
-
-	// Append the URL-encoded filter data to the API endpoint URL
-	if !strings.Contains(get_runtime_groups, "?") {
-		get_runtime_groups += "?"
-	} else {
-		get_runtime_groups += "&"
+	filter := map[string]string{
+		"filter[name][eq]": runtime_group_name,
 	}
-	get_runtime_groups += filterData.Encode()
+	filterValues := url.Values{}
+	for k, v := range filter {
+		filterValues.Add(k, v)
+	}
+	filterData := filterValues.Encode()
+	get_runtime_groups := kong_api_endpoint + "/" + api_version + "/runtime-groups" + "?" + filterData
 
 	req, err := http.NewRequest(http.MethodGet, get_runtime_groups, nil)
 
