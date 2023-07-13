@@ -67,6 +67,7 @@ type Output struct {
 	Name                 string `json:"name"`
 	AWSCertManagerCRT    string `json:"cert_manager_crt"`
 	AWSCertManagerKey    string `json:"cert_manager_key"`
+	PersonalAccessToken  string `json:"personal_access_token"`
 }
 
 // Create a struct containing certificate
@@ -245,9 +246,11 @@ func GenerateKeys() {
 	output.Name = runtime_configuration.Data[0].Name
 	output.AWSCertManagerCRT = runtime_configuration.Data[0].ID + "-cert"
 	output.AWSCertManagerKey = runtime_configuration.Data[0].ID + "-key"
+	output.PersonalAccessToken = runtime_configuration.Data[0].ID + "-pat-token"
 
 	CreateSecret(output.AWSCertManagerCRT, string(certPEM))
 	CreateSecret(output.AWSCertManagerKey, string(privateKeyPEM))
+	CreateSecret(output.PersonalAccessToken, personal_access_token)
 
 	outputStr := fmt.Sprintf("%+v", output)
 	fmt.Println(outputStr)
