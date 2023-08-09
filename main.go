@@ -110,7 +110,7 @@ func main() {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 409 {
-		fmt.Println("Runtime group already exists")
+		fmt.Println("Detected existing runtime group, skipping creation")
 	}
 	if resp.StatusCode == 201 {
 		fmt.Println("Runtime group created")
