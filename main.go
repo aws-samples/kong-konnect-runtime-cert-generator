@@ -92,6 +92,7 @@ func main() {
 	}
 
 	req, err := http.NewRequest(http.MethodPost, kong_api_endpoint+"/"+api_version+"/runtime-groups", bytes.NewBuffer(jsonData))
+
 	if err != nil {
 		fmt.Println("Error creating request:", err)
 		return
@@ -108,6 +109,10 @@ func main() {
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 401 {
+		log.Fatal("UnAuthorized, pls validate your PAT token and Konnect RBAC permissions")
+	}
 
 	if resp.StatusCode == 409 {
 		fmt.Println("Detected existing runtime group, skipping creation")
