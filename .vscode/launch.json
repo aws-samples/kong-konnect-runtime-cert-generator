@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "Launch",
+          "type": "go",
+          "request": "launch",
+          "mode": "auto",
+          "program": "${workspaceFolder}/main.go",
+          "args": ["-api-endpoint" ,"https://us.api.konghq.com", "-api-version", "v2", "-personal-access-token" ,"kpat_e", "-runtime-group-name","KIC Demo Two"]
+      }
+  ]
+}
