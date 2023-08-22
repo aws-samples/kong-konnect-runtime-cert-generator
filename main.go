@@ -11,6 +11,7 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
+	clustertype "kong-konnect-runtime-cert-generator/enums"
 	"log"
 	"math/big"
 	"net/http"
@@ -27,10 +28,12 @@ var (
 	personal_access_token string
 	api_version           string
 	runtime_group_name    string
+	cluster_type		  string
 )
 
 type RunTimeGroupName struct {
 	Name string `json:"name"`
+	ClusterType string `json:"cluster_type"`
 }
 
 type RunTimeGroupId struct {
@@ -80,10 +83,17 @@ func main() {
 	flag.StringVar(&api_version, "api-version", "v2", "Kong API version")
 	flag.StringVar(&personal_access_token, "personal-access-token", "", "Kong Personal Access Token")
 	flag.StringVar(&runtime_group_name, "runtime-group-name", "default", "Runtime group name")
+	flag.StringVar(&cluster_type, "cluster-type", string(clustertype.ClusterTypeHybrid), "Cluster type")
 	flag.Parse()
+
+	// check if cluster type is valid enum
+	if cluster_type != string(clustertype.ClusterTypeHybrid) && cluster_type != string(clustertype.ClusterTypeKiC) && cluster_type != string(clustertype.ClusterTypeComposite) {
+		log.Fatal("Invalid cluster type, please use one of the following: CLUSTER_TYPE_HYBRID, CLUSTER_TYPE_K8S_INGRESS_CONTROLLER, CLUSTER_TYPE_COMPOSITE")
+	}
 
 	data := RunTimeGroupName{
 		Name: runtime_group_name,
+		ClusterType: cluster_type,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -259,7 +269,7 @@ func GenerateKeys() {
 
 	//convert struct to JSON
 
-	outputJson, err := json.Marshal(output)
+	outputJson, _ := json.Marshal(output)
 	fmt.Printf("%s\n", outputJson)
 }
 
