@@ -62,11 +62,11 @@ type RuntimeConfiguration struct {
 }
 
 type Output struct {
-	ControlPlaneEndpoint string `json:"control_plane_endpoint"`
-	TelemetryEndpoint    string `json:"telemetry_endpoint"`
-	Name                 string `json:"name"`
-	AWSCertManagerCRT    string `json:"cert_manager_crt"`
-	AWSCertManagerKey    string `json:"cert_manager_key"`
+	ControlPlaneEndpoint string `json:"cluster_dns"`
+	TelemetryEndpoint    string `json:"telemetry_dns"`
+	Name                 string `json:"runtime_name"`
+	AWSCertManagerCRT    string `json:"cert_secret_name"`
+	AWSCertManagerKey    string `json:"key_secret_name"`
 	PersonalAccessToken  string `json:"personal_access_token"`
 }
 
@@ -257,8 +257,10 @@ func GenerateKeys() {
 	CreateSecret(output.AWSCertManagerKey, string(privateKeyPEM))
 	CreateSecret(output.PersonalAccessToken, personal_access_token)
 
-	outputStr := fmt.Sprintf("%+v", output)
-	fmt.Println(outputStr)
+	//convert struct to JSON
+
+	outputJson, err := json.Marshal(output)
+	fmt.Printf("%s\n", outputJson)
 }
 
 // Function to create secrets in AWS Secrets Manager
