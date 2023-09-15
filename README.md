@@ -22,7 +22,3 @@ export GITHUB_TOKEN="YOUR_GH_TOKEN"
 
 * Create a tag and push it to GitHub
 * Run `goreleaser release --clean`
-
-# TODO
-
-Feature requests are as mentioned in the Issues section of this repository. Appreciate pull requests.
