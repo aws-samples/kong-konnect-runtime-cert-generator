@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// upsertControlPlaneCmd represents the upsertControlPlane command
-var upsertControlPlaneCmd = &cobra.Command{
+// upsertGatewayControlPlaneCmd represents the upsertControlPlane command
+var upsertGatewayControlPlaneCmd = &cobra.Command{
 	Use:   "upsert-control-plane",
 	Short: "Creates or updates the konnect control plane and stores related Secrets in AWS Secrets Manager",
 // 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -44,7 +44,7 @@ var upsertControlPlaneCmd = &cobra.Command{
 		}
 
 		data := RunTimeGroupName{
-			Name: runtime_group_name,
+			Name: gateway_control_plane_name,
 			ClusterType: cluster_type,
 		}
 
@@ -87,13 +87,6 @@ var upsertControlPlaneCmd = &cobra.Command{
 	},
 }
 
-var (
-	kong_api_endpoint     string
-	personal_access_token string
-	api_version           string
-	runtime_group_name    string
-	cluster_type		  string
-)
 
 type RunTimeGroupName struct {
 	Name string `json:"name"`
@@ -128,7 +121,7 @@ type RuntimeConfiguration struct {
 	} `json:"data"`
 }
 
-type Output struct {
+type UpsertGatewayOutput struct {
 	ControlPlaneEndpoint string `json:"cluster_dns"`
 	TelemetryEndpoint    string `json:"telemetry_dns"`
 	Name                 string `json:"runtime_name"`
@@ -143,7 +136,7 @@ type Cert struct {
 }
 
 func init() {
-	gatewayManagerCmd.AddCommand(upsertControlPlaneCmd)
+	gatewayManagerCmd.AddCommand(upsertGatewayControlPlaneCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -153,18 +146,18 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	upsertControlPlaneCmd.Flags().StringVar(&kong_api_endpoint, "api-endpoint", "https://us.api.konghq.com", "API endpoint for the control plane")
-	upsertControlPlaneCmd.Flags().StringVar(&api_version, "api-version", "v2", "Konnect API version")
-	upsertControlPlaneCmd.Flags().StringVar(&personal_access_token, "personal-access-token", "", "Kong Konnect Personal Access Token")
-	upsertControlPlaneCmd.Flags().StringVar(&runtime_group_name, "runtime-group-name", "default", "Runtime Group Name for the control plane")
-	upsertControlPlaneCmd.Flags().StringVar(&cluster_type, "cluster-type", string(clustertype.ClusterTypeHybrid), "Control Plane Type")
+	upsertGatewayControlPlaneCmd.Flags().StringVar(&kong_api_endpoint, "api-endpoint", "https://us.api.konghq.com", "API endpoint for the control plane")
+	upsertGatewayControlPlaneCmd.Flags().StringVar(&api_version, "api-version", "v2", "Konnect API version")
+	upsertGatewayControlPlaneCmd.Flags().StringVar(&personal_access_token, "personal-access-token", "", "Kong Konnect Personal Access Token")
+	upsertGatewayControlPlaneCmd.Flags().StringVar(&gateway_control_plane_name, "name", "default", "Runtime Group Name for the control plane")
+	upsertGatewayControlPlaneCmd.Flags().StringVar(&cluster_type, "cluster-type", string(clustertype.ClusterTypeHybrid), "Control Plane Type")
 }
 
 // function to call kong api and get the runtime group id
 func GetRuntimeGroupConfiguration() RuntimeConfiguration {
 
 	filter := map[string]string{
-		"filter[name][eq]": runtime_group_name,
+		"filter[name][eq]": gateway_control_plane_name,
 	}
 	filterValues := url.Values{}
 	for k, v := range filter {
@@ -280,7 +273,7 @@ func GenerateKeys() {
 
 	//TODO: Log Levels -  fmt.Println("Certificate Upload status:", resp.Status)
 
-	var output Output
+	var output UpsertGatewayOutput
 	output.ControlPlaneEndpoint = runtime_configuration.Data[0].Config.ControlPlaneEndpoint
 	output.TelemetryEndpoint = runtime_configuration.Data[0].Config.TelemetryEndpoint
 	output.Name = runtime_configuration.Data[0].Name
