@@ -1,5 +1,7 @@
 package clustertype
 
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
 // Define a enum type for the cluster type
 type ClusterType string
 
